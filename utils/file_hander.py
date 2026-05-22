@@ -4,7 +4,7 @@ from utils.logger_handler import logger
 from langchain_core.documents import Document
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 
-def get_file_md5_hex(filepath: str):    #获取文件的md5的十六进制字符串
+def get_file_md5_hex(filepath: str):    #读取一个文件，计算它的 MD5 哈希值，并返回 32 位十六进制字符串
 
     if not os.path.exists(filepath):
         logger.error(f"[md5计算]文件不存在: {filepath}")
@@ -29,6 +29,7 @@ def get_file_md5_hex(filepath: str):    #获取文件的md5的十六进制字符
                  md5_obj.update(chunk)
                  chunk = f.read(chunk_size)
             """
+            # hexdigest() 会把 MD5 结果转成十六进制字符串。
             md5_hex = md5_obj.hexdigest()
             return md5_hex
     except Exception as e:

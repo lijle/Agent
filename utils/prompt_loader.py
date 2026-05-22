@@ -2,7 +2,9 @@ from utils.config_handler import prompts_conf
 from utils.path_tool import get_abs_path
 from utils.logger_handler import logger
 
-
+# 定义加载主系统提示词的方法。
+#
+# 主系统提示词就是 Agent 的默认行为规则
 def load_system_prompts():
     try:
         system_prompt_path = get_abs_path(prompts_conf["main_prompt_path"])

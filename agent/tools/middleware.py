@@ -1,14 +1,23 @@
 from typing import Callable
 from utils.prompt_loader import load_system_prompts, load_report_prompts
+# AgentState 是 Agent 当前状态。
+#
+# 里面最重要的是：
+#
+# state["messages"]
+#
+# 也就是对话历史、工具调用消息、工具返回消息等。
 from langchain.agents import AgentState
 from langchain.agents.middleware import wrap_tool_call, before_model, dynamic_prompt, ModelRequest
+# ToolCallRequest 是工具调用请求。
 from langchain.tools.tool_node import ToolCallRequest
+# ToolMessage 是工具执行后的返回消息。
 from langchain_core.messages import ToolMessage
 from langgraph.runtime import Runtime
 from langgraph.types import Command
 from utils.logger_handler import logger
 
-
+# wrap_tool_call：包住工具调用
 @wrap_tool_call
 def monitor_tool(
         # 请求的数据封装
@@ -31,7 +40,7 @@ def monitor_tool(
         logger.error(f"工具{request.tool_call['name']}调用失败，原因：{str(e)}")
         raise e
 
-
+# before_model：模型调用前执行
 @before_model
 def log_before_model(
         state: AgentState,          # 整个Agent智能体中的状态记录
@@ -43,8 +52,9 @@ def log_before_model(
 
     return None
 
-
+# dynamic_prompt：动态生成/切换 prompt
 @dynamic_prompt                 # 每一次在生成提示词之前，调用此函数
+# ModelRequest：模型调用请求对象
 def report_prompt_switch(request: ModelRequest):     # 动态切换提示词
     is_report = request.runtime.context.get("report", False)
     if is_report:               # 是报告生成场景，返回报告生成提示词内容

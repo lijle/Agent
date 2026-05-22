@@ -5,7 +5,7 @@ from agent.tools.agent_tools import (rag_summarize, get_weather, get_user_locati
                                      get_current_month, fetch_external_data, fill_context_for_report)
 from agent.tools.middleware import monitor_tool, log_before_model, report_prompt_switch
 
-
+#主链路，总入口，本质是：把模型、提示词、工具、中间件组装成一个可流式输出的 Agent
 class ReactAgent:
     def __init__(self):
         self.agent = create_agent(
@@ -16,6 +16,7 @@ class ReactAgent:
             middleware=[monitor_tool, log_before_model, report_prompt_switch],
         )
 
+    # 定义一个方法，用来接收用户问题，并流式返回模型输出
     def execute_stream(self, query: str):
         input_dict = {
             "messages": [
@@ -27,6 +28,10 @@ class ReactAgent:
         for chunk in self.agent.stream(input_dict, stream_mode="values", context={"report": False}):
             latest_message = chunk["messages"][-1]
             if latest_message.content:
+                # yield 表示这是一个生成器。不是一次性 return 全部结果，而是：
+                #
+                # 来一段，吐一段
+                # 来一段，吐一段
                 yield latest_message.content.strip() + "\n"
 
 
